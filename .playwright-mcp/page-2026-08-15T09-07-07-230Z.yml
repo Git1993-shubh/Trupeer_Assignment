@@ -1,0 +1,32 @@
+- generic [active] [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Trupeer home" [ref=e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e13]:
+          - heading "Get started for free" [level=1] [ref=e14]
+          - paragraph [ref=e15]: Start your 10 day free trial. No credit card required
+      - generic [ref=e16]:
+        - button "Continue with Google" [disabled]
+        - generic [ref=e17]: or
+        - generic [ref=e21]:
+          - textbox "Email" [ref=e29]:
+            - /placeholder: Your email
+          - generic [ref=e31]:
+            - textbox "Password" [ref=e38]
+            - button "Show password" [ref=e40] [cursor=pointer]
+          - button "Continue" [disabled]
+        - paragraph [ref=e46]:
+          - text: By signing up, you agree to our
+          - link "Privacy Policy" [ref=e47] [cursor=pointer]:
+            - /url: https://www.trupeer.ai/privacy-policy
+          - text: and
+          - link "Terms of Service" [ref=e48] [cursor=pointer]:
+            - /url: https://www.trupeer.ai/terms-and-conditions
+      - button "Use single sign-on (SSO)" [disabled] [ref=e49]
+      - paragraph [ref=e53]:
+        - text: Got an account already?
+        - button "Login" [ref=e54] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e57]

@@ -1,0 +1,26 @@
+{
+  "name": "trupeer-qa-part3",
+  "version": "1.0.0",
+  "description": "Trupeer QA Assignment - Part 3: AI-Augmented Testing",
+  "main": "validate.js",
+  "scripts": {
+    "validate": "node validate.js",
+    "validate:judge": "node validate.js --judge-only",
+    "test": "node validate.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "playwright",
+    "ai",
+    "testing",
+    "llm",
+    "validation"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@playwright/test": "^1.40.0",
+    "dotenv": "^16.3.1"
+  }
+}

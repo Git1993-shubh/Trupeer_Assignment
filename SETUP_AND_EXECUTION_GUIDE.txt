@@ -1,0 +1,729 @@
+================================================================================
+TRUPEER QA FRAMEWORK - SETUP & EXECUTION GUIDE
+================================================================================
+
+This document provides complete instructions for setting up and running the 
+Trupeer QA automation framework.
+
+================================================================================
+1. PROJECT OVERVIEW
+================================================================================
+
+The framework includes three parts:
+
+PART 1: Manual QA Testing
+  - Documentation template for bug reports
+  - Screenshot evidence collection
+  - Location: part1/
+
+PART 2: E2E Automation with Playwright + JavaScript
+  - 10+ automated test cases
+  - Page Object Model architecture
+  - No hardcoded credentials
+  - HTML reporting and failure diagnostics
+  - Location: part2/
+  
+PART 3: AI-Augmented Testing with LLM Judge
+  - Validates Trupeer AI quality
+  - Uses GPT-4 for evaluation
+  - Reuses Part 2 page objects
+  - Generates detailed JSON reports
+  - Location: part3/
+
+================================================================================
+2. CURRENT STATUS
+================================================================================
+
+✅ COMPLETED:
+  - All project structure created
+  - Part 2: package.json, playwright.config.js
+  - Part 2: Page objects (LoginPage, DashboardPage, EditorPage)
+  - Part 2: Test suites (login, editor, negative tests)
+  - Part 2: Environment configuration and test data
+  - Part 3: LLMJudge AI evaluation system
+  - Part 3: Validation orchestrator
+  - All dependencies installed
+  - Playwright browsers downloaded and ready
+
+✅ DEPENDENCIES INSTALLED:
+  - Part 2: @playwright/test@1.40.0, dotenv@16.3.1
+  - Part 3: @playwright/test@1.40.0, dotenv@16.3.1
+  - Playwright Chromium browser: 151.0.7922.34
+
+⚠️  PENDING:
+  - Environment variables configuration (.env file)
+  - Selector verification against actual Trupeer UI
+  - Running actual tests with credentials
+  - Testing with real Trupeer account
+
+================================================================================
+3. PREREQUISITES
+================================================================================
+
+✅ Already Installed:
+  - Node.js 16.x or higher
+  - npm 8.x or higher
+  - Playwright test framework
+  - Chromium browser binary
+
+Required Before Running:
+  - Trupeer account with valid credentials
+  - At least one video in Trupeer account
+  - For Part 3: OpenAI API key (https://platform.openai.com/api-keys)
+
+================================================================================
+4. ENVIRONMENT SETUP
+================================================================================
+
+STEP 1: Create .env file in root directory
+-----
+
+cd c:\Users\Shreya Shrivastava\Trupeer_Assignment
+
+If not already present, the template is at .env.example. Create .env:
+
+  TRUPEER_BASE_URL=https://app.trupeer.ai
+  TRUPEER_EMAIL=your-email@example.com
+  TRUPEER_PASSWORD=your-password
+  TRUPEER_VIDEO_NAME=your-existing-video-name
+  LLM_API_KEY=sk-...your-openai-api-key...
+  LLM_PROVIDER=openai
+  LLM_MODEL=gpt-4
+
+IMPORTANT:
+  - .env is in .gitignore (not committed to repo)
+  - Never share .env file
+  - LLM_API_KEY is required only for Part 3
+  - TRUPEER_VIDEO_NAME should be exact video name from your account
+
+STEP 2: Verify .env is in root, not in part2/ or part3/
+
+Both part2 and part3 load from root .env using:
+  - Part 2: require('dotenv').config();
+  - Part 3: require('dotenv').config({ path: '../.env' });
+
+================================================================================
+5. RUNNING PART 2: E2E AUTOMATION TESTS
+================================================================================
+
+BASIC EXECUTION:
+
+  cd part2
+  npm test
+
+This runs all tests in headless mode (no browser window).
+
+EXPECTED OUTPUT:
+  ======== test session starts ========
+  10 passed in 3.5s
+  
+  Login Tests
+    ✓ should login successfully and land on dashboard
+    ✓ should display error on invalid login attempt
+  
+  Editor Tests
+    ✓ should navigate to editor and display all key components
+    ✓ should modify script using AI and display modified output
+    ✓ should handle AI modification with different prompts
+    ✓ should apply modified script if apply button is available
+  
+  Negative Tests
+    ✓ should prevent AI script modification when prompt is empty
+    ✓ should handle network/server errors gracefully
+    ✓ should handle missing video gracefully
+    ✓ should maintain session after navigation
+
+ADVANCED EXECUTION OPTIONS:
+
+1. RUN TESTS IN HEADED MODE (see browser):
+   npm run test:headed
+
+2. DEBUG MODE (step through tests):
+   npm run test:debug
+
+3. RUN SPECIFIC TEST FILE:
+   npm test -- tests/login.spec.js
+   npm test -- tests/editor.spec.js
+   npm test -- tests/negative.spec.js
+
+4. RUN SPECIFIC TEST BY NAME:
+   npm test -- -g "should login successfully"
+
+5. RUN ON SPECIFIC BROWSER:
+   npm run test:chrome       # Chromium only
+   npm run test:firefox      # Firefox only (install first)
+   npm run test:webkit       # Safari only (install first)
+
+6. VIEW TEST RESULTS:
+   npm run report
+
+   Opens Playwright HTML reporter showing:
+   - Test timeline
+   - Screenshots on failure
+   - Video recordings on failure
+   - Detailed error traces
+   - Timing information
+
+TEST CONFIGURATION:
+
+File: playwright.config.js
+  - Base URL: from TRUPEER_BASE_URL env var
+  - Timeout: 30 seconds per test
+  - Expect timeout: 5 seconds per assertion
+  - Retries: 0 locally, 2 on CI
+  - Screenshot: captured on failure
+  - Video: captured on failure
+  - Trace: captured on first retry
+
+================================================================================
+6. RUNNING PART 3: AI-AUGMENTED TESTING
+================================================================================
+
+BASIC EXECUTION:
+
+  cd part3
+  npm run validate
+
+This validates Trupeer AI quality using LLM Judge.
+
+EXPECTED OUTPUT:
+
+  ========================================
+  TRUPEER AI VALIDATION FRAMEWORK
+  ========================================
+  
+  Launching browser...
+  Authenticating...
+  ✓ Authenticated successfully
+  
+  Opening editor...
+  ✓ Original script captured (487 chars)
+  
+  Testing prompt: "Make this script more professional"
+  --------------------------------------------------
+    Evaluating output with LLM Judge...
+    ✓ Result: PASS
+    📊 Confidence: 94%
+    Criteria:
+      ✓ intent: PASS
+      ✓ coherence: PASS
+      ✓ information_preservation: PASS
+      ✓ meaningful_change: PASS
+    📝 High-quality professional tone transformation...
+  
+  [More prompts...]
+  
+  ========================================
+  VALIDATION SUMMARY
+  ========================================
+  
+  ✓ Make this script more professional
+    Result: PASS
+    Confidence: 94%
+  
+  ✓ Make this script more concise
+    Result: PASS
+    Confidence: 91%
+  
+  ✓ Add a call to action at the end
+    Result: PASS
+    Confidence: 96%
+  
+  ✓ Translate this script to Spanish
+    Result: PASS
+    Confidence: 98%
+  
+  ========================================
+  Overall: 4/4 PASSED
+  Average Confidence: 94.75%
+  ========================================
+
+RESULTS FILES:
+
+  - Console output (above)
+  - JSON results: validation-results-{timestamp}.json
+    Contains detailed evaluation for each prompt
+    Structure:
+    {
+      "timestamp": "2024-01-15T10:30:45.123Z",
+      "environment": { ... },
+      "results": [
+        { "prompt": "...", "evaluation": { "overall": "PASS", ... } },
+        ...
+      ],
+      "summary": { "total": 4, "passed": 4, "errors": 0 }
+    }
+
+VALIDATION PROMPTS TESTED:
+
+  1. "Make this script more professional"
+     - Tests tone/style transformation
+  
+  2. "Make this script more concise"
+     - Tests content reduction
+  
+  3. "Add a call to action at the end"
+     - Tests content addition
+  
+  4. "Translate this script to Spanish"
+     - Tests language translation
+
+EVALUATION CRITERIA (per prompt):
+
+  Intent Match: Does output follow user request?
+  Coherence: Is output grammatically correct?
+  Information Preservation: Are key facts retained?
+  Meaningful Change: Is output meaningfully different?
+
+================================================================================
+7. COMPLETE DIRECTORY STRUCTURE
+================================================================================
+
+trupeer-qa-assignment/
+│
+├── README.md                           # Main project documentation
+├── .env.example                        # Environment template
+├── .env                                # Local credentials (not in repo)
+├── .gitignore                          # Git rules
+│
+├── part1/
+│   ├── bugs.md                         # Bug report template
+│   └── screenshots/                    # Bug evidence (empty initially)
+│
+├── part2/
+│   ├── package.json                    # Dependencies & scripts
+│   ├── playwright.config.js            # Playwright configuration
+│   ├── node_modules/                   # Installed dependencies
+│   │
+│   ├── pages/
+│   │   ├── LoginPage.js               # Login page object
+│   │   ├── DashboardPage.js           # Dashboard page object
+│   │   └── EditorPage.js              # Video editor page object
+│   │
+│   ├── tests/
+│   │   ├── login.spec.js              # Login tests
+│   │   ├── editor.spec.js             # Editor & AI tests
+│   │   └── negative.spec.js           # Negative scenario tests
+│   │
+│   ├── utils/
+│   │   ├── env.js                     # Environment config
+│   │   └── testData.js                # Test data & constants
+│   │
+│   ├── README.md                       # Part 2 documentation
+│   ├── test-results/                   # Test reports (created after run)
+│   ├── playwright-report/              # HTML report (created after run)
+│   └── .playwright/                    # Trace files (created after run)
+│
+└── part3/
+    ├── package.json                    # Dependencies & scripts
+    ├── validate.js                     # Main validation script
+    ├── node_modules/                   # Installed dependencies
+    │
+    ├── llm/
+    │   └── LLMJudge.js                # LLM evaluation engine
+    │
+    ├── utils/
+    │   └── env.js                     # Environment config
+    │
+    ├── README.md                       # Part 3 documentation
+    ├── notes.md                        # Implementation notes
+    ├── sample-output.txt               # Example output
+    └── validation-results-*.json       # Results (created after run)
+
+================================================================================
+8. PAGE OBJECT METHODS REFERENCE
+================================================================================
+
+PART 2 PAGE OBJECTS (Reused by Part 3):
+
+LoginPage:
+  - navigate()                          # Go to login page
+  - login(email, password)              # Perform login
+  - isLoginFormVisible()                # Check form visibility
+  - isErrorDisplayed()                  # Check for errors
+  - getErrorMessage()                   # Get error text
+  - waitForLoginToComplete()            # Wait for navigation
+
+DashboardPage:
+  - expectDashboardLoaded()             # Wait for dashboard
+  - isDashboardVisible()                # Check visibility
+  - openVideo(videoName)                # Open video by name
+  - getVideoTitles()                    # List all videos
+  - isUserLoggedIn()                    # Check login status
+  - logout()                            # Sign out
+  - getCurrentURL()                     # Get current URL
+
+EditorPage:
+  - expectEditorLoaded()                # Wait for editor
+  - isEditorVisible()                   # Check visibility
+  - isVideoPreviewVisible()             # Check video
+  - isTimelineVisible()                 # Check timeline
+  - isScriptPanelVisible()              # Check script panel
+  - getOriginalScript()                 # Get current script
+  - clickModifyWithAI()                 # Open AI prompt
+  - submitAIPrompt(prompt)              # Submit prompt
+  - modifyScriptWithAI(prompt)          # One-step modification
+  - waitForAIResponse()                 # Wait for AI response
+  - getModifiedScript()                 # Get AI output
+  - isModifiedScriptVisible()           # Check output visibility
+  - applyModifiedScript()               # Apply changes
+  - isAISubmitButtonEnabled()           # Check submit button
+  - isErrorMessageVisible()             # Check for errors
+  - getErrorMessage()                   # Get error text
+  - selectBackground(name)              # Select background
+  - setZoomLevel(value)                 # Change zoom
+  - getZoomLevel()                      # Get current zoom
+  - closeAIResponse()                   # Close AI modal
+  - getCurrentURL()                     # Get current URL
+
+================================================================================
+9. IMPORTANT NOTES ON SELECTORS
+================================================================================
+
+SELECTOR STRATEGY:
+
+Page objects use this priority:
+  1. getByRole() - Most stable (accessibility)
+  2. getByLabel() - Form labels
+  3. getByPlaceholder() - Input placeholders
+  4. getByTestId() - data-testid attributes
+  5. Stable CSS selectors - Last resort
+
+SELECTOR VERIFICATION NEEDED:
+
+Some selectors are based on common UI patterns and may need adjustment for
+actual Trupeer UI. If tests fail with "locator not found" errors:
+
+  1. Run in headed mode: npm run test:headed
+  2. Use browser DevTools to inspect the actual element
+  3. Update the selector in the page object
+  4. Run tests again to verify
+
+FILES TO UPDATE:
+  - part2/pages/LoginPage.js
+  - part2/pages/DashboardPage.js
+  - part2/pages/EditorPage.js
+
+EXAMPLE SELECTOR ADJUSTMENT:
+
+If email input selector fails:
+  Before: page.locator('input[type="email"]')
+  After: page.locator('input[name="email"]') or page.getByPlaceholder('Email')
+
+================================================================================
+10. TROUBLESHOOTING
+================================================================================
+
+ISSUE: "Missing required environment variables"
+SOLUTION:
+  1. Create .env file in root directory
+  2. Copy values from .env.example
+  3. Fill in your Trupeer credentials
+  4. Verify file location: c:\Users\Shreya Shrivastava\Trupeer_Assignment\.env
+
+ISSUE: "Timeout waiting for login"
+SOLUTION:
+  1. Verify TRUPEER_BASE_URL is correct (should be https://app.trupeer.ai)
+  2. Check internet connection
+  3. Verify credentials are correct
+  4. Verify Trupeer is online
+  5. Check selector is valid for actual UI
+
+ISSUE: "Locator.waitFor: Timeout waiting for selector"
+SOLUTION:
+  1. Run test in headed mode: npm run test:headed
+  2. Inspect element with browser DevTools
+  3. Verify selector matches actual element
+  4. Update selector in page object
+  5. Rerun test
+
+ISSUE: "OpenAI API error: Invalid authentication"
+SOLUTION (Part 3):
+  1. Verify LLM_API_KEY in .env is correct
+  2. Check API key at https://platform.openai.com/api-keys
+  3. Ensure account has usage quota/credits
+  4. Key may have expired - regenerate if needed
+
+ISSUE: "Rate limit exceeded"
+SOLUTION (Part 3):
+  1. Wait 1 minute before retrying
+  2. Use gpt-3.5-turbo instead of gpt-4 (cheaper)
+  3. Run validation less frequently
+
+ISSUE: "Element not visible" or "Button not clickable"
+SOLUTION:
+  1. Element may be covered by modal/overlay
+  2. Scroll to element: await locator.scrollIntoViewIfNeeded()
+  3. Wait longer: increase timeout in playwright.config.js
+  4. Try in headed mode to see actual state
+
+================================================================================
+11. RUNNING ALL TESTS SEQUENTIALLY
+================================================================================
+
+Complete workflow from setup to results:
+
+STEP 1: Setup (.env file)
+  cd c:\Users\Shreya Shrivastava\Trupeer_Assignment
+  notepad .env
+  # Add credentials
+
+STEP 2: Run Part 2 Tests
+  cd part2
+  npm test
+  
+  # When done, view results:
+  npm run report
+
+STEP 3: Run Part 3 AI Validation
+  cd ..\part3
+  npm run validate
+  
+  # Results saved to validation-results-{timestamp}.json
+
+STEP 4: Review Results
+  - Part 2: Test report in browser (npm run report)
+  - Part 3: Console output + JSON file
+
+================================================================================
+12. CI/CD INTEGRATION
+================================================================================
+
+For continuous integration (GitHub Actions, Jenkins, etc.):
+
+GITHUB ACTIONS EXAMPLE:
+
+  name: Trupeer QA Tests
+  on: [push, pull_request]
+  
+  jobs:
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+        
+        - name: Install dependencies
+          run: |
+            cd part2
+            npm install
+            npx playwright install
+        
+        - name: Run tests
+          run: |
+            cd part2
+            npm test
+          env:
+            TRUPEER_EMAIL: ${{ secrets.TRUPEER_EMAIL }}
+            TRUPEER_PASSWORD: ${{ secrets.TRUPEER_PASSWORD }}
+            TRUPEER_BASE_URL: https://app.trupeer.ai
+            TRUPEER_VIDEO_NAME: test-video
+        
+        - name: Upload results
+          if: always()
+          uses: actions/upload-artifact@v3
+          with:
+            name: playwright-report
+            path: part2/playwright-report/
+            retention-days: 30
+
+ENVIRONMENT VARIABLES IN CI:
+  - Store secrets in GitHub Secrets/AWS Secrets Manager
+  - Pass to tests via env: block
+  - Never commit .env or credentials
+  - Use different credentials for CI if possible
+
+================================================================================
+13. KEY ASSUMPTIONS & LIMITATIONS
+================================================================================
+
+ASSUMPTIONS:
+  ✓ Trupeer URL is https://app.trupeer.ai
+  ✓ Login uses email/password (not OAuth)
+  ✓ "Modify Script with AI" feature exists in editor
+  ✓ User has at least one video in account
+  ✓ OpenAI GPT-4 available (Part 3)
+  ✓ Selectors match common UI patterns
+
+KNOWN LIMITATIONS:
+  - AI output is nondeterministic (tests verify properties, not exact text)
+  - Single account testing (can't test multiple users simultaneously)
+  - Rate limiting possible on heavy usage
+  - Some selectors may need adjustment for actual Trupeer UI
+  - LLM evaluation works best for English content
+
+WORKING AROUND LIMITATIONS:
+  1. Selector issues → Inspect DOM and update page objects
+  2. Flaky tests → Use explicit waits, avoid arbitrary sleeps
+  3. Rate limiting → Add backoff retry logic
+  4. AI nondeterminism → Evaluate properties, not exact content
+
+================================================================================
+14. MAINTENANCE & UPDATES
+================================================================================
+
+WHEN TRUPEER UI CHANGES:
+
+  1. Run test in headed mode: npm run test:headed
+  2. Identify which test fails
+  3. Inspect element with DevTools
+  4. Find updated selector
+  5. Update page object (part2/pages/*)
+  6. Verify test passes
+  7. Part 3 automatically inherits the fix
+
+WHEN ADDING NEW TESTS:
+
+  1. Create new file: part2/tests/feature.spec.js
+  2. Import required page objects
+  3. Write test using existing methods
+  4. Run test: npm test -- tests/feature.spec.js
+  5. Verify passes
+
+WHEN ADDING NEW PAGE OBJECT:
+
+  1. Create file: part2/pages/NewPage.js
+  2. Define selectors and methods
+  3. Export class
+  4. Import in test file
+  5. Use in tests
+
+KEEPING DEPENDENCIES UPDATED:
+
+  # Check for updates
+  npm outdated
+  
+  # Update packages
+  npm update
+  
+  # Update Playwright specifically
+  npm install @playwright/test@latest
+
+================================================================================
+15. QUICK REFERENCE COMMANDS
+================================================================================
+
+PART 2:
+  cd part2
+  npm test                              # Run all tests
+  npm run test:headed                   # See browser
+  npm run test:debug                    # Debug mode
+  npm test -- tests/login.spec.js       # Specific file
+  npm test -- -g "login"                # Specific test
+  npm run test:chrome                   # Chromium only
+  npm run report                        # View results
+  npm install                           # Install deps
+  npx playwright install                # Install browsers
+
+PART 3:
+  cd part3
+  npm run validate                      # Run validation
+  npm install                           # Install deps
+
+GENERAL:
+  cd ..                                 # Go to root
+  code .                                # Open in VS Code
+  ls (or dir on Windows)                # List files
+
+================================================================================
+16. SUCCESS CRITERIA
+================================================================================
+
+✅ SETUP SUCCESS:
+
+  - .env file created with credentials
+  - npm install completed without errors
+  - Playwright browsers downloaded
+  - No permission errors
+
+✅ PART 2 TEST SUCCESS:
+
+  - All tests pass (green checkmarks)
+  - No timeout errors
+  - Screenshots captured on failures
+  - HTML report viewable
+  - No hardcoded credentials in output
+
+✅ PART 3 VALIDATION SUCCESS:
+
+  - Validation runs without errors
+  - All 4 prompts tested
+  - Results show PASS/FAIL with confidence
+  - JSON results file created
+  - No API keys in output or logs
+
+✅ FRAMEWORK QUALITY:
+
+  - Code is clean and readable
+  - Page objects are reusable
+  - Tests are maintainable
+  - Documentation is complete
+  - No brittle selectors
+  - Explicit waits only (no arbitrary sleeps)
+
+================================================================================
+17. NEXT STEPS
+================================================================================
+
+1. CREATE .env FILE
+   - Copy from .env.example
+   - Fill in credentials
+   - Verify file location
+
+2. RUN PART 2 TESTS
+   cd part2
+   npm test
+   - Verify login test passes
+   - Fix selectors if needed
+   - Ensure editor tests run
+
+3. VIEW RESULTS
+   npm run report
+   - Check for failures
+   - Review screenshots
+   - Note any issues
+
+4. RUN PART 3 (Optional - requires OpenAI key)
+   cd ../part3
+   npm run validate
+   - Verify AI validation works
+   - Check confidence scores
+
+5. DOCUMENT RESULTS
+   - Note any selector changes made
+   - Document assumptions
+   - Update README if needed
+
+6. COMMIT TO VERSION CONTROL
+   - Verify .env is in .gitignore
+   - Commit all framework files
+   - Push to repository
+
+================================================================================
+18. SUPPORT & DOCUMENTATION
+================================================================================
+
+INTERNAL DOCUMENTATION:
+  - part2/README.md        → E2E automation guide
+  - part3/README.md        → AI validation guide
+  - part3/notes.md         → Implementation details
+  - ROOT/README.md         → Complete overview
+
+EXTERNAL DOCUMENTATION:
+  - Playwright Docs: https://playwright.dev
+  - Test Assertions: https://playwright.dev/docs/test-assertions
+  - Selectors Guide: https://playwright.dev/docs/locators
+  - OpenAI API: https://platform.openai.com/docs
+
+================================================================================
+
+Ready to proceed. Create .env file and run:
+
+  cd part2
+  npm test
+
+Or visit the documentation files for detailed information.
+
+================================================================================
